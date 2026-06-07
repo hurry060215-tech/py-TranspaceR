@@ -1,0 +1,125 @@
+# Pre-registered parity gate for py-TranspaceR
+# COMMIT THIS BEFORE THE AGENT LOOP BEGINS.
+# These fields are READ-ONLY after the Acceleration Agent starts.
+
+package: py-TranspaceR
+upstream:
+  name: TranspaceR
+  version: "1.0.0"
+  source: GitHub
+  url: https://github.com/TranspaceR/TranspaceR
+
+# Multi-class package: each output group has its own gate
+algorithm_class: deterministic
+
+# Default threshold (overridden per output below)
+parity_threshold: 1.0
+
+fixture:
+  path: data/fixture_transspacer.h5ad
+  source: Example_data bundled with TranspaceR
+  description: "TranspaceR example spatial transcriptomics dataset"
+  expected_shape: [~5000, ~300]
+
+seed: 42
+
+outputs:
+  # --- Deterministic outputs ---
+  - name: c_normalisation
+    type: "matrix"
+    metric: max_abs_error
+    threshold: 1.0e-8
+
+  - name: otsu_thresholding
+    type: "scalar"
+    metric: max_abs_error
+    threshold: 1.0e-8
+
+  - name: fftshift
+    type: "matrix"
+    metric: max_abs_error
+    threshold: 1.0e-8
+
+  - name: ifftshift
+    type: "matrix"
+    metric: max_abs_error
+    threshold: 1.0e-8
+
+  - name: get_variogram_map
+    type: "matrix"
+    metric: max_abs_error
+    threshold: 1.0e-6  # FFT cross-BLAS tolerance
+
+  - name: get_isotropic_vario
+    type: "vector"
+    metric: max_abs_error
+    threshold: 1.0e-6
+
+  - name: colvars_sparse
+    type: "vector"
+    metric: max_abs_error
+    threshold: 1.0e-8
+
+  - name: aggregate_sparse
+    type: "matrix"
+    metric: max_abs_error
+    threshold: 1.0e-8
+
+  - name: calculate_log2fc
+    type: "vector"
+    metric: max_abs_error
+    threshold: 1.0e-8
+
+  - name: pad_definitor
+    type: "scalar"
+    metric: max_abs_error
+    threshold: 1.0e-8
+
+  # --- Inference outputs ---
+  - name: geary_c_score
+    type: "inference"
+    metric: spearman_jaccard
+    threshold_spearman: 0.90
+    threshold_jaccard: 0.70
+
+  - name: excess_variance_ratio_nb
+    type: "inference"
+    metric: spearman_jaccard
+    threshold_spearman: 0.90
+    threshold_jaccard: 0.70
+
+  - name: excess_zero_score_nb
+    type: "inference"
+    metric: spearman_jaccard
+    threshold_spearman: 0.90
+    threshold_jaccard: 0.70
+
+  # --- Clustering output ---
+  - name: cell_clustering
+    type: "clustering"
+    metric: ari
+    threshold: 0.95
+
+  # --- Embedding output ---
+  - name: umap
+    type: "embedding"
+    metric: procrustes
+    threshold: 0.95
+
+  # --- Ranked output ---
+  - name: select_genes
+    type: "ranked"
+    metric: top_k_jaccard
+    threshold: 0.80
+    k: 50
+
+reference_command: tests/r_reference_driver.R
+
+acceleration:
+  enabled: false  # class-A translation-only for now
+  max_iterations: 20
+  must_pass_gate: true
+
+audit_class: null
+created_by: rebuildr-agent
+created_at: 2026-06-07

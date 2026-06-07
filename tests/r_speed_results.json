@@ -1,0 +1,9 @@
+{
+  "C_normalisation": 1.47,
+  "Otsu_thresholding": 0.31,
+  "pad_definitor": 0,
+  "colvars_sparse": 1.72,
+  "Get_variogram_map": 0.02,
+  "Get_isotropic_vario": 0.01,
+  "Clustering": null
+}
